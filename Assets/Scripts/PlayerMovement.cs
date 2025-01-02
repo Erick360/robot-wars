@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    private Player player;
     private PlayerControls controls;
     private CharacterController characterController;
     private Animator animator;
@@ -29,21 +30,16 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 aimInput;
 
     
-
-    private void Awake()
-    {
-        AssignInputEvents();
-    }
-
-    
-
     private void Start()
     { 
+        player = GetComponent<Player>();
+
         characterController = GetComponent<CharacterController>(); 
         animator = GetComponentInChildren<Animator>();
 
         speed = walkSpeed;
 
+        AssignInputEvents();
     }
 
     private void Update()
@@ -55,11 +51,7 @@ public class PlayerMovement : MonoBehaviour
         AnimatorControllers();
     }
 
-    private void Shoot()
-    {
-        animator.SetTrigger("Fire");
-    }
-
+  
     private void AnimatorControllers()
     {
         float xVelocity = Vector3.Dot(movementDirection.normalized, transform.right);
@@ -85,7 +77,7 @@ public class PlayerMovement : MonoBehaviour
 
             transform.forward = lookingDirection;
 
-            aim.position = new Vector3(hitInfo.point.x, transform.position.y, hitInfo.point.z);
+            aim.position = new Vector3(hitInfo.point.x, aim.transform.position.y, hitInfo.point.z);
         }
     }
 
@@ -114,12 +106,10 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-    #region Input System
+   
     private void AssignInputEvents()
     {
-        controls = new PlayerControls();
-
-        controls.Character.Fire.performed += context => Shoot();
+        controls = player.controls;
 
         controls.Character.Movement.performed += context => moveInput = context.ReadValue<Vector2>();
         controls.Character.Movement.canceled += context => moveInput = Vector2.zero;
@@ -142,14 +132,5 @@ public class PlayerMovement : MonoBehaviour
 
         };
     }
-
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-    private void OnDisable()
-    {
-        controls.Disable();
-    }
-    #endregion
+   
 }
